@@ -39,8 +39,8 @@ int async(thread_pool_t* pool, future_t* future, callable_t callable) {
 
 	runnable_t task;
 	task.arg = future;
-	task.argsz = 1;
-	task.function = compute;
+	task.argsz = sizeof(future);
+	task.function = &compute;
 
 	defer(pool, task);
 	pthread_mutex_unlock(&(future->security));
@@ -55,8 +55,8 @@ int map(thread_pool_t* pool, future_t* future, future_t* from,
 
 	runnable_t task;
 	task.arg = future;
-	task.argsz = 1;
-	task.function = wait_take_and_compute;
+	task.argsz = sizeof(future);
+	task.function = &wait_take_and_compute;
 
 	defer(pool, task);
 	pthread_mutex_unlock(&(future->security));
@@ -70,5 +70,4 @@ void* await(future_t* future) {
 	void* result = future->result;
 	pthread_mutex_unlock(&(future->security));
 	return result;
-	return 0;
 }

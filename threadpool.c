@@ -68,7 +68,6 @@ void* worker(void* data)
 		}
 	}
 
-	//pthread_cond_signal(&(pool->joining));
 	pthread_mutex_unlock(&(pool->security));
 	return NULL;
 }
@@ -83,23 +82,12 @@ int thread_pool_init(thread_pool_t* pool, size_t num_threads) {
 	pool->job_queue = new_queue;
 
 	pthread_mutex_init(&(pool->security), NULL);
-	//syserr
 	pthread_cond_init(&(pool->job_to_do), NULL);
-	//syserr
-	//pthread_cond_init(&(pool->joining), NULL);
-	//syserr
 
 	pool->threads = malloc(sizeof(pthread_t) * num_threads);
 
 	for (size_t i = 0; i < num_threads; ++i) {
 		pthread_create(pool->threads + i, NULL, worker, pool);
-		/*pthread_t thread;
-		pthread_attr_t attr;
-		pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-		//syserr
-		pthread_create(&thread, &attr, worker, pool);
-		//syserr
-		 */
 	}
 
 	return 0;
@@ -119,18 +107,10 @@ void thread_pool_destroy(thread_pool_t* pool) {
 	}
 
 	free(pool->threads);
-	/*
-	while (pool->threads_alive > 0)
-		pthread_cond_wait(&(pool->joining), &(pool->security));
-	*/
 
 	queue_clear(pool->job_queue);
 	pthread_mutex_destroy(&(pool->security));
-	//err
-	//pthread_cond_destroy(&(pool->joining));
-	//err
 	pthread_cond_destroy(&(pool->job_to_do));
-	//err
 }
 
 int defer(thread_pool_t* pool, runnable_t runnable) {
@@ -145,7 +125,6 @@ int defer(thread_pool_t* pool, runnable_t runnable) {
 
 	queue_push(pool->job_queue, runnable);
 	pthread_cond_broadcast(&(pool->job_to_do));
-	//albo signal?
 	pthread_mutex_unlock(&(pool->security));
 
 	return 0;
