@@ -16,6 +16,7 @@ void* multiply(void* arg, size_t argsz __attribute__((unused)), size_t* result_s
 int main() {
 	int n;
 	scanf("%d", &n);
+	fflush(stdout);
 	thread_pool_t* pool = malloc(sizeof(thread_pool_t));
 	thread_pool_init(pool, THREADS);
 
