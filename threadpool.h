@@ -25,7 +25,7 @@ typedef struct queue {
 
 typedef struct thread_pool {
 	bool interrupted;
-	int no_threads;
+	size_t no_threads;
 	pthread_t* threads;
 	queue_t* job_queue;
 	pthread_mutex_t security;

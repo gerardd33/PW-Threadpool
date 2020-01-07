@@ -44,14 +44,11 @@ void queue_clear(queue_t* queue) {
 	free(queue);
 }
 
-void* worker(void* data)
-{
+void* worker(void* data) {
 	thread_pool_t *pool = data;
-	while (1)
-	{
+	while (1) {
 		pthread_mutex_lock(&(pool->security));
-		if (queue_empty(pool->job_queue))
-		{
+		if (queue_empty(pool->job_queue)) {
 			if (pool->interrupted)
 				break;
 			else
@@ -61,8 +58,7 @@ void* worker(void* data)
 		queue_node_t *job_node = queue_pop(pool->job_queue);
 		pthread_mutex_unlock(&(pool->security));
 
-		if (job_node)
-		{
+		if (job_node) {
 			job_node->value.function(job_node->value.arg, job_node->value.argsz);
 			free(job_node);
 		}
@@ -102,12 +98,12 @@ void thread_pool_destroy(thread_pool_t* pool) {
 	pthread_cond_broadcast(&(pool->job_to_do));
 	pthread_mutex_unlock(&(pool->security));
 
-	for (int i = 0; i < pool->no_threads; ++i) {
-		pthread_join(pool->threads[i], NULL);
+	void* tmp_res;
+	for (size_t i = 0; i < pool->no_threads; ++i) {
+		pthread_join(pool->threads[i], &tmp_res);
 	}
 
 	free(pool->threads);
-
 	queue_clear(pool->job_queue);
 	pthread_mutex_destroy(&(pool->security));
 	pthread_cond_destroy(&(pool->job_to_do));
